@@ -1,4 +1,4 @@
-$action = New-ScheduledTaskAction -Execute "$PSScriptRoot/invoke.vbs"
+$action = New-ScheduledTaskAction -Execute "$PSScriptRoot\invoke.vbs"
 
 $RepetitionPattern = Get-CimClass `
     -Namespace Root/Microsoft/Windows/TaskScheduler `
@@ -6,7 +6,7 @@ $RepetitionPattern = Get-CimClass `
 
 $R = New-CimInstance `
     -CimClass $RepetitionPattern `
-    -Property @{Interval = 'PT5M'} `
+    -Property @{Interval = 'PT10M'} `
     -ClientOnly
 
 $trigger = New-ScheduledTaskTrigger -AtLogOn
