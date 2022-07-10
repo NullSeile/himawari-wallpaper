@@ -1,45 +1,55 @@
 import ctypes
-from typing import List
+from typing import Dict, Tuple
 import requests
 from PIL import Image
 from io import BytesIO
 import datetime
 import time
 import pathlib
+import itertools
+from tqdm.contrib.concurrent import thread_map
+import pytz
+from tzlocal import get_localzone
 
-# 1, 2, 4, 8
+# 1  = 550x550
+# 2  = 1100x1100
+# 4  = 2200x2200
+# 8  = 4400x4400
+# 16 = 8800x8800
+# 20 = 11000x11000
 dim = 4
 
-t = datetime.datetime.now()
+# Get the current time
+t = datetime.datetime.now(get_localzone())
+
+# Translated to UTC
+t = t.astimezone(pytz.utc)
+
+# Interpreted as JST and translated to UTC
+t = t.replace(tzinfo=pytz.timezone("Japan"))
+t = t.astimezone(pytz.utc)
 
 # Snap to closest 10 minuts
 t -= datetime.timedelta(minutes=t.minute % 10)
 
-# Convert time to GMT 0
-t -= datetime.timedelta(hours=9, minutes=20)
+size = 550
+path = f"https://himawari8-dl.nict.go.jp/himawari8/img/D531106/{dim}d/{size}/{t.strftime('%Y/%m/%d/%H%M00')}"
 
-# GMT +2
-t -= datetime.timedelta(hours=2)
-
-path = f"https://himawari8-dl.nict.go.jp/himawari8/img/D531106/{dim}d/550/{t.strftime('%Y/%m/%d/%H%M00')}"
-
-imgs: List[List[Image.Image]] = []
-for x in range(dim):
-	imgs.append(list())
-	for y in range(dim):
-
-		url = path + f"_{x}_{y}.png"
-		print(url)
-
-		response = requests.get(url)
-		imgs[x].append(Image.open(BytesIO(response.content)))
+coords = list(itertools.product(range(dim), range(dim)))
+imgs: Dict[Tuple[int, int], Image.Image] = {}
 
 
-w, h = imgs[0][0].size
-img = Image.new("RGB", (w * dim, h * dim))
-for x in range(dim):
-	for y in range(dim):
-		img.paste(imgs[x][y], (x * w, y * h, (x + 1) * w, (y + 1) * h))
+def f(coord):
+    url = path + f"_{coord[0]}_{coord[1]}.png"
+    response = requests.get(url)
+    imgs[coord] = Image.open(BytesIO(response.content))
+
+
+r = thread_map(f, coords, desc="Downloading")
+
+img = Image.new("RGB", (size * dim, size * dim))
+for x, y in coords:
+    img.paste(imgs[(x, y)], (x * size, y * size, (x + 1) * size, (y + 1) * size))
 
 
 directory = str(pathlib.Path(__file__).parent.resolve())
@@ -51,4 +61,8 @@ img.close()
 time.sleep(5)
 
 SPI_SETDESKWALLPAPER = 20
+ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, img_path, 0)
+
+time.sleep(5)
+
 ctypes.windll.user32.SystemParametersInfoW(SPI_SETDESKWALLPAPER, 0, img_path, 0)
