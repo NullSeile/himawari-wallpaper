@@ -1,4 +1,4 @@
 Set shell = CreateObject("WScript.Shell")
-command = "python " & CreateObject("Scripting.FileSystemObject").GetParentFolderName(WScript.ScriptFullName) & "\himawari.py"
-shell.Run "conda activate himawari", 0
-shell.Run command, 0
+shell.CurrentDirectory = CreateObject("Scripting.FileSystemObject").GetParentFolderName(WScript.ScriptFullName)
+shell.Run ".venv\Scripts\activate.bat && python himawari.py", 0
+
