@@ -1,0 +1,10 @@
+[Unit]
+Description="Update wallpaper every 10mins"
+
+[Timer]
+OnUnitActiveSec=10min
+Unit=himawari.source
+
+[Install]
+WantedBy=timers.target
+
