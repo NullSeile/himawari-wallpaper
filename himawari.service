@@ -3,4 +3,5 @@ Description="Update wallpaper"
 
 [Service]
 ExecStart=/home/lia/dotfiles/himawari-wallpaper/invoke.sh
+RuntimeMaxSec=90
 
