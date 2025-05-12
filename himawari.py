@@ -39,14 +39,15 @@ t -= datetime.timedelta(minutes=t.minute % 10)
 print(t)
 
 size = 550
-path = f"https://himawari8-dl.nict.go.jp/himawari8/img/D531106/{dim}d/{size}/{t.strftime('%Y/%m/%d/%H%M00')}"
+#        https://himawari8-dl.nict.go.jp/himawari.asia/img/D531106/2d/550/2025/04/29/224000_1_1.png
+path = f"https://himawari8-dl.nict.go.jp/himawari.asia/img/D531106/{dim}d/{size}/{t.strftime('%Y/%m/%d/%H%M00')}"
 
 coords = list(itertools.product(range(dim), range(dim)))
 imgs: dict[tuple[int, int], Image.Image] = {}
 
 def f(coord):
     url = path + f"_{coord[0]}_{coord[1]}.png"
-    response = requests.get(url)
+    response = requests.get(url, verify=False)
     imgs[coord] = Image.open(BytesIO(response.content))
 
 r = thread_map(f, coords, desc="Downloading")
