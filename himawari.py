@@ -40,14 +40,17 @@ print(t)
 
 size = 550
 #        https://himawari8-dl.nict.go.jp/himawari.asia/img/D531106/2d/550/2025/04/29/224000_1_1.png
-path = f"https://himawari8-dl.nict.go.jp/himawari.asia/img/D531106/{dim}d/{size}/{t.strftime('%Y/%m/%d/%H%M00')}"
+#        https://jh170034-1.kudpc.kyoto-u.ac.jp/himawari/img/D531106/2d/550/2026/01/01/152000_0_1.png
+#        https://himawari8-dl.nict.go.jp/himawari.asia/img/D531106/1d/550/2026/02/20/173000_0_0.png
+# path = f"https://himawari8-dl.nict.go.jp/himawari.asia/img/D531106/{dim}d/{size}/{t.strftime('%Y/%m/%d/%H%M00')}"
+path = f"https://jh190005-4.kudpc.kyoto-u.ac.jp/himawari/img/D531106/{dim}d/{size}/{t.strftime('%Y/%m/%d/%H%M00')}"
 
 coords = list(itertools.product(range(dim), range(dim)))
 imgs: dict[tuple[int, int], Image.Image] = {}
 
 def f(coord):
     url = path + f"_{coord[0]}_{coord[1]}.png"
-    response = requests.get(url, verify=False)
+    response = requests.get(url, verify=True)
     imgs[coord] = Image.open(BytesIO(response.content))
 
 r = thread_map(f, coords, desc="Downloading")

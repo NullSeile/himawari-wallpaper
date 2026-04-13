@@ -3,5 +3,9 @@ Description="Update wallpaper"
 
 [Service]
 ExecStart=/home/lia/dotfiles/himawari-wallpaper/invoke.sh
+KillMode=process
+# Type=oneshot
+# RemainAfterExit=yes
+# KillMode=none
 RuntimeMaxSec=90
 
